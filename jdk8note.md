@@ -126,7 +126,10 @@
 	7.4、由函数生成流：创建无限流 
 		Stream.iterate和Stream.generate
 			
-		
+8、收集器Collector
+
+	Collector会对元素应用一个转换函数（很多时候是不体现任何效果的恒等转换，例如toList），并将结果累积在一个数据结构中，从而产生这一过程的最终输出
+			
 		
 		
 		
