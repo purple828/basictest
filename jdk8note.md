@@ -126,20 +126,88 @@
 	7.4、由函数生成流：创建无限流 
 		Stream.iterate和Stream.generate
 			
-8、收集器Collector
+8、收集器
 
+    Collectors工厂类中能创建出多少种收集器实例
 	Collector会对元素应用一个转换函数（很多时候是不体现任何效果的恒等转换，例如toList），并将结果累积在一个数据结构中，从而产生这一过程的最终输出
-			
+	三大功能：
+	将流元素归约和汇总为一个值；
+	元素分组；
+	元素分区		
+	
+	8.1、归约与汇总
+	    8.1.1 
+	    使用两个收集器，Collectors.maxBy和 Collectors.minBy，来计算流中的最大或最小值。这两个收集器接收一个Comparator参数来 比较流中的元素
+	    eg:
+	    Comparator<Dish> dishCaloriesComparator =
+                Comparator.comparingInt(Dish::getCalories);
+            Optional<Dish> mostCalorieDish =
+                menu.stream()
+        .collect(maxBy(dishCaloriesComparator));
+        
+        8.1.2 
+        Collectors.summingInt。它可接受一 个把对象映射为求和所需int的函数，并返回一个收集器;该收集器在传递给普通的collect方 法后即执行我们需要的汇总操作
+		    Collectors.summingLong和Collectors.summingDouble方法的作用完全一样
+		eg:
+		int totalCalories = menu.stream().collect(summingInt(Dish::getCalories));
 		
+		8.1.3 
+		summarizingInt工厂 方法返回的收集器一次性获取总和、平均值、最大值和最小值
+		eg:
+		IntSummaryStatistics menuStatistics = menu.stream().collect(summarizingInt(Dish::getCalories));
+		返回结果：IntSummaryStatistics{count=9, sum=4300, min=120, average=477.777778, max=800}
 		
+		8.1.4
+		joining工厂方法返回的收集器会把对流中每一个对象应用toString方法得到的所有字符串连接成一个字符串
+		eg:
+		String shortMenu = menu.stream().map(Dish::getName).collect(joining());
+		String shortMenu = menu.stream().map(Dish::getName).collect(joining(", "));
 		
+		8.1.5
+		广义的归约汇总reducing,其需要三个参数：
+		第一个参数是归约操作的起始值，也是流中没有元素时的返回值，所以很显然对于数值和而言0是一个合适的值。
+        第二个参数是转换函数
+        第三个参数是一个BinaryOperator，将两个项目累积成一个同类型的值
+	
+	8.2
+	Collectors.groupingBy：分组,接收一个Function（以方法引用的方式），此函数叫分类函数，因为它用来把流中的元素分成不同的组，分组操作的结果是一个Map，把分组函数返回的值作为映射的键，把流中 所有具有这个分类值的项目的列表作为对应的映射值
+	普通的单参数groupingBy(f)(其中f是分类函数)实际上是groupingBy(f, toList())的简便写法
+	eg:单参数分组
+	Map<Dish.Type, List<Dish>> dishesByType = menu.stream().collect(groupingBy(Dish::getType));
+	
+	public enum CaloricLevel { DIET, NORMAL, FAT }
+    Map<CaloricLevel, List<Dish>> dishesByCaloricLevel = menu.stream().collect( groupingBy(dish -> {
+                   if (dish.getCalories() <= 400) return CaloricLevel.DIET;
+                   else if (dish.getCalories() <= 700) return
+        CaloricLevel.NORMAL;
+            else return CaloricLevel.FAT;
+             } ));
+             
+    8.3 分组
+        8.3.1 多级分组	
+        eg:
+        Map<Dish.Type, Map<CaloricLevel, List<Dish>>> dishesByTypeCaloricLevel = menu.stream().collect(groupingBy(Dish::getType,
+            groupingBy(dish -> {if (dish.getCalories() <= 400) return CaloricLevel.DIET;
+            else if (dish.getCalories() <= 700) return CaloricLevel.NORMAL;else return CaloricLevel.FAT; })));
+	
+	    8.3.2 按子组收集数据
+	    传递给第一个groupingBy的第二个收集器可以是任何类型	
 		
-		
-		
-		
-		
-		
-		
+	8.4 分区	
+	partitioningBy：分区是分组的特殊情况:由一个谓词(返回一个布尔值的函数)作为分类函数，它称分区函 数。分区函数返回一个布尔值，这意味着得到的分组Map的键类型是Boolean，于是它最多可以 分为两组——true是一组，false是一组
+	
+	8.5 收集器接口
+	public interface Collector<T, A, R> {
+            Supplier<A> supplier();
+            BiConsumer<A, T> accumulator();
+            Function<A, R> finisher();
+            BinaryOperator<A> combiner();
+            Set<Characteristics> characteristics();
+    }
+    T是流中要收集的项目的泛型
+    A是累加器的类型，累加器是在收集过程中用于累积部分结果的对象
+    R是收集操作得到的对象(通常但并不一定是集合)的类型
+	
 		
 		
 		
