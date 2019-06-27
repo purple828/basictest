@@ -1,5 +1,6 @@
 package com.example.basictest.model;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -25,16 +26,32 @@ public class User  extends AbstractClass{
 
     private long num;
 
-    private double high;
+    private Double high;
 
     private Date birth;
 
     private Student student;
 
+    private BigDecimal weight;
+
     public User(){}
 
-    public User(String name){
-        System.out.println("excute user constructor............");
+    public User(String name,int age){
+        this.name = name;
+        this.age = age;
+    }
+
+    public User(String name,int age,BigDecimal weight){
+        this.name = name;
+        this.age = age;
+        this.weight = weight;
+    }
+
+    public User(String name,int age,BigDecimal weight,Double high){
+        this.name = name;
+        this.age = age;
+        this.weight = weight;
+        this.high = high;
     }
 
     public void create(String name){
@@ -43,6 +60,14 @@ public class User  extends AbstractClass{
 
     public void print(){
         System.out.println("------------->print<-------------");
+    }
+
+    public BigDecimal getWeight() {
+        return weight;
+    }
+
+    public void setWeight(BigDecimal weight) {
+        this.weight = weight;
     }
 
     public String getName() {
@@ -69,11 +94,11 @@ public class User  extends AbstractClass{
         this.num = num;
     }
 
-    public double getHigh() {
+    public Double getHigh() {
         return high;
     }
 
-    public void setHigh(double high) {
+    public void setHigh(Double high) {
         this.high = high;
     }
 
